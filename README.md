@@ -19,7 +19,7 @@ Since all components are functions written in Rust, we'll need to actually edit 
    - Step 5: Make a new line underneath the comment and write the following: `"Component Name" => component_name::run,` with `"Component Name"` being the name you wish to refer to the component when connecting them via boards and `component_name` being the same as the `component_name.rs` file.
    - Step 6: Save the file and you're done!
  
- To remove components, simply erase the lines you just added. To add/remove boards you just need to do the same in the `boards` folder!
+ To remove components, simply erase the lines you just added. To add/remove boards you just need to do the same in the `boards` folder but under `// USER BOARDS: Add your board here`, add `"Board Name" => board_name::create`.
 ### Creating boards
 Boards are rather straight forward to create but do require a bit of of Rust knowledge to make. The example boards are designed to be really readable and understandable so if you'd like to learn by using the source code you totally can! However for the rest of us mortals, in my experience, the best way to learn is by doing so let's create a demo board!
 
