@@ -101,11 +101,9 @@ pub fn create () -> Board {
   let (cdtm, dis1, dis2, sdtg) = (0, 1, 2, 3);
 	
   let bus = vec![
-    // First connection
     vec![
       [cdtm,0], [dis1,0]
     ],
-    // Second Connection
     vec![
       [cdtm,1], [dis2,0], [sdtg,0]
     ]
