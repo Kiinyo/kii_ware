@@ -3,7 +3,7 @@ Welcome to kii_ware()! At its heart, this is a simple toy open-source hardware e
 ### How it works
 Every bit of kiiware is simply a collection of "components" that are connected via a "board". Just like their real life counterpart, a component knows nothing about the state of the system as a whole and only knows the state of its pins. A board, similar to a breadboard, is responsible for connecting the components together!
 ### Installation
-First thing's first, you'll need to have Rust installed in order for any of this to work! If you don't have Rust installed already `https://www.rust-lang.org/tools/install` will walk you through everything! With Rust installed there are two main ways to install kii_ware():
+First thing's first, you'll need to have Rust installed in order for any of this to work! If you don't have Rust installed already, let me be the first to welcome you! The community is amazing and the official Discord will help you with anything you could possibly need! `https://www.rust-lang.org/tools/install` will walk you through everything you need to install Rust. With Rust installed there are two main ways to install kii_ware():
 #### git:
   The simplest way to get started assuming you have `git` installed, run `git clone https://github.com/kiinyo/kii_ware` in your terminal. 
 #### Manual Download:
@@ -35,6 +35,7 @@ pub fn create () -> Board {
     String::from("Console Display"),
     String::from("Shutdown Trigger")
   ];
+  
 }
 ```
 The first line of code tells Rust we'll be `use`ing `Board` from the `kii_ware/src/main.rs` file so that the bit of kii_ware() that emulates the hardware can be sure it has the right type!
@@ -43,6 +44,29 @@ We then declare our `create` function and tell Rust it's going to return `->` a 
 
 Next we define our components! We `let components =` a `vec!` of `String`s that include the names of the names we assigned in the `Adding components and boards` section. In this case we we have two `"Console Display"`s mainly just to show that we can.
 
-That's great and all but the components have no way to communicate! Let's see about making a few `connections`! Let's look at the documentation for `Console Display` and `Shutdown Trigger`:
-```
+That's great and all but the components have no way to communicate! Let's see about making a few `connections`! Let's look at the documentation for at the top of the `countdown_timer.rs` file!
+```rust
+// countdown_timer.rs
 
+// Data Type: u8
+// Pin(s): 2
+// Registers: 1
+// Description: When initialized, sets pin[0] to '10' and subtracts one from this value every second.
+// At '3', sends '100' to pin[1];
+// At '0', sends '255' to pin[1];
+
+// console_display.rs
+
+// Data Type: u8
+// Pin(s): 1
+// Registers: 1
+// Description: When pin[0] is changed to 0..10 prints "Countdown is at: [number]"
+// If pin[0] is set to 100, prints "The system will shut down in 3 seconds!"
+
+// shutdown_trigger.rs
+
+// Data Type: u8
+// Pin(s): 1
+// Registers: 1
+// Description: When pin[0] is set to 255, sends a signal to kii_ware() to shut down.
+```
