@@ -50,7 +50,7 @@ Unfortunately as things stand right now, the components have no way to communica
 // Registers: 1
 // Description: When pin[0] is set to 255, sends a signal to kii_ware() to shut down.
 ```
-Looks like if we connect `pin[0]` of the `"Countdown Timer"` to `pin[0]` of our first `"Console Display"` we should get a countdown timer. Then if we connect `pin[1]` to the pins for the other `"Console Display"` and `"Shutdown Trigger"` we should get a 3 second warning before the kii_ware() ends its simulation so let's do that! A connection is a `vec`tor holding a list of `[component_index, pin_number]`s it's connecting. The `bus` is simply a `vec` that holds all of the connections!
+One thing that's important to note is that lists in /most programming languages/ start with the number 0. This means that for a list of 5 things, the index positions would look like `[0, 1, 2, 3, 4]`. With that in mind, looks like if we connect `pin[0]` of the `"Countdown Timer"` to `pin[0]` of our first `"Console Display"` we should get a countdown timer. Then if we connect `pin[1]` to the pins for the other `"Console Display"` and `"Shutdown Trigger"` we should get a 3 second warning before the kii_ware() ends its simulation so let's do that! A connection is a `vec`tor holding a list of `[component_index, pin_number]`s it's connecting. The `bus` is simply a `vec` that holds all of the connections!
 ```rust
 let bus = vec![
   // First connection
