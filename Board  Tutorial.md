@@ -1,7 +1,7 @@
 ### Creating boards
-Boards are rather straight forward to create but do require a bit of of Rust/Programming knowledge to make. The example boards are designed to be really readable and understandable so if you'd like to learn by using the source code you totally can! However for the rest of us mortals, in my experience, the best way to learn is by doing so let's create a demo board!
+Boards are rather straight forward to create but do require a bit of of Rust/Programming knowledge. The example boards are designed to be really readable and understandable so if you'd like to learn by reading the source code you totally can! However for the rest of us mortals, in my experience, the best way to learn is by doing so let's create a demo board!
 
-To start off, we'll need need to create a new `demo_board.rs` file in the `board` folder. Inside that file we can write the following:
+To start off, we'll need need to create a new `demo_board.rs` file in the `kii_ware/src/boards` folder. Inside that file we can write the following:
 ```rust
 use Board;
 
@@ -16,11 +16,11 @@ pub fn create () -> Board {
   
 }
 ```
-The first line of code tells Rust we'll be `use`ing `Board` from the `kii_ware/src/main.rs` file so kii_ware() knows we're giving it a properly formatted board!
+The first line of code tells Rust we'll declare we're `use`ing `Board` from the `kii_ware/src/main.rs` file in our file at some point! At the end of every declaration we need to add a `;` if it doesn't have an enclosure (`[...]` or `{...}` for instance) so that Rust knows where the end is!
 
-We then declare our public function (`pub fn`_ called `create` that doesn't accept any arguments `()` and returns `->` a `Board`. Public function just means that bits of Rust outside of this file can also use this function.
+We then declare our public function (`pub fn`) called `create` that doesn't accept any inputs (arguments) `()` but outputs (returns) `->` a `Board`. Public function just means that bits of Rust outside of this file can also use this function. We fortunately don't nee to add a `;` at the end of 
 
-Next we define our components! Inside the function `{...}`, we `let components =` a `vec![...]` of `String`s that we got `from` the names of the components we assigned in the `Adding components and boards` section. A `vec![...]` is simply an array with a length that might change, in Rust we call these `Vector`s. 
+Next we define our components! Inside the function `{...}`, we `let components =` a `vec![...];` of `String`s that we got `from` the names of the components we assigned in the `kii_ware/src/components/mod.rs` file. A `vec![0, 1, 2, 3, ...]` is simply an array with a length that might change, in Rust we call these `Vector`s. 
 
 Also important to note is that in this case we have two `"Console Display"`s! If we've installed a component previously, we can use as many copies as we want! How's that for convenient?
 
@@ -50,7 +50,7 @@ Unfortunately as things stand right now, the components have no way to communica
 // Registers: 1
 // Description: When pin[0] is set to 255, sends a signal to kii_ware() to shut down.
 ```
-One thing that's important to note is that lists in /most programming languages/ start with the number 0. This means that for a list of 5 things, the index positions would look like `[0, 1, 2, 3, 4]`. With that in mind, looks like if we connect `pin[0]` of the `"Countdown Timer"` to `pin[0]` of our first `"Console Display"` we should get a countdown timer. Then if we connect `pin[1]` to the pins for the other `"Console Display"` and `"Shutdown Trigger"` we should get a 3 second warning before the kii_ware() ends its simulation so let's do that! A connection is a `vec`tor holding a list of `[component_index, pin_number]`s it's connecting. The `bus` is simply a `vec` that holds all of the connections!
+One thing that's important to note is that lists in /most programming languages/ start with the number 0. This means that for a list of 5 things, the index positions would look like `[0, 1, 2, 3, 4]`. With that in mind, looks like if we connect `pin[0]` (the first pin) of the `"Countdown Timer"` to `pin[0]` of our first `"Console Display"` we should get a countdown timer. Then if we connect `pin[1]` to the pins for the other `"Console Display"` and `"Shutdown Trigger"` we should get a 3 second warning before the kii_ware() ends its simulation so let's do that! A connection is a `vec`tor holding a list of `[component_index, pin_number]`s it's connecting. The `bus` is simply a `vec` that holds all of the connections!
 ```rust
 let bus = vec![
   // First connection
@@ -94,4 +94,4 @@ pub fn create () -> Board {
 ```
 Well almost like this! While it isn't that bad for 3 or 4 components, having to use the index number for every component can become a nightmare after the 10th or 20th one so I've gone ahead and assigned the index numbers names to make them easier to keep track of! It's all personal perference in the end though!
 
-With that our board is done! Make sure to save your `board_name.rs`, add it to the `mod.rs` file as explained in `Adding and removing components and boards` and enjoy!
+With that our board is done! Make sure to save your `demo_board.rs` file, and let the `mod.rs` file know it exists as explained in the `README.md` and enjoy!
