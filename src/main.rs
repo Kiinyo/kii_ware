@@ -1,87 +1,115 @@
-pub mod components;
-pub mod boards;
+use std::sync::{ Arc, Mutex };
 
-use std::sync::{Arc, Mutex};
-
-fn quiz() -> String {
-    String::from("u8")
+pub struct Pins {
+	pre: u128,             // Previous pin value
+	pub val: u128,             // Current pin value
+	bus: Arc<Mutex<u128>>, // Bus pins are connected to
+	pub con: [usize;128],      // List of all the connections
+	len: usize             // How many pins are used
 }
 
-fn main () { 
-    // Intro
-    println!("Hello and welcome to kii_ware!");
-    // Determine the type
-    let result = quiz();
-    // Get the board
-    let board = match result.as_str() {
-        "u8" => boards::get_u8(),
-        _ => panic! ("What do?")
-    };
-    // Create the actual bus
-    let mut bus = Vec::new();
-    for _ in 0..board.bus.len() {
-        bus.push(Arc::new(Mutex::new(board.default_value)));
-    }
-    // Create the components and connect them to the bus
-    // as well as a container to hold all the threads.
-    let mut threads = Vec::new();
-    for c in 0..board.components.len() {
-        // Create the component
-        let mut component = match result.as_str() {
-            "u8" => components::create_u8(board.components[c].clone()),
-            _ => panic! ("What do?")
-        };
-        // Go through all the component's pins
-        'pin_assignment: for p in 0..component.pin_number {
-            // For each component's pin go through all of the
-            // bus connections
-            for bc in 0..bus.len() {
-                // And in each one of the connections
-                for y in 0..board.bus[bc].len() {
-                    // Check to see if it's the component's pin
-                    if board.bus[bc][y][0] == c 
-                    && board.bus[bc][y][1] == p {
-                        // If it is we assign it a clone of the
-                        // bus to it.
-                        component.pins.push(Arc::clone(&bus[bc]));
-                        // And we can skip to the next pin!
-                        continue 'pin_assignment;
-                    }
-                }
-            }
-            // If it's not connected to a bus we simply make a new
-            // one to be used instead!
-            component.pins.push(
-                Arc::new(
-                    Mutex::new(
-                        component.default_value
-                    )
-                )
-            );
-        }
-        // Once all the pins have been assigned, create the
-        // registers the component will be using
-        for _ in 0..component.reg_number {
-            component.registers.push(component.default_value);
-        }
-        // Finally run the component
-        let cmp = std::thread::spawn( move || {
-            let run = component.logic;
-            loop {
-                run ( 
-                    &mut component.pins, 
-                    &mut component.registers
-                );
-            }
-        });
-        threads.push(cmp);
-    }
-    // And we're done we're done!
-    
-    // Wait until either all the components shut down or
-    // the user ends the process!
-    for cmp in threads {
-        cmp.join().unwrap();
-    }
-    println! ( "Thanks for using kii_ware~! <3" );
+impl Pins {
+	// Get the on/off of the pin
+	fn get (&self, pin: usize) -> bool {
+		170141183460469231731687303715884105728 <= self.val << 127 - pin
+	}
+	// Set the on/off of the pin
+	fn set (&mut self, pin: usize, on: bool) {
+		if 170141183460469231731687303715884105728 <= self.val << 127 - pin {
+			// The pin is on
+			if on {
+				// Do nothing, it's on
+			} else {
+				// Flip it
+				self.val ^= 1_u128 << pin;
+			}
+		} else {
+			// The pin is off
+			if on {
+				// Flip it
+				self.val |= 1_u128 << pin;
+			} else {
+				// Do nothing
+			}
+		}
+	}
+	fn refresh (&mut self) {
+		// Get changes
+		let cha = self.val ^ self.pre;
+		let mut b = self.bus.lock().unwrap();
+		// Refresh pins
+		for x in 0..self.len {
+			// We're writing a change
+			if 170141183460469231731687303715884105728 <= cha << 127 - x {
+				// A change has occurred on this pin
+				if self.get(x) {
+					// The change is On
+					if *b << 127 - self.con[x] >= 170141183460469231731687303715884105728 {
+						// Do nothing, the bus is already on
+					} else {
+						*b |= 1_u128 << self.con[x]
+					}
+				} else {
+					// The change is Off
+					if *b << 127 - self.con[x] >= 170141183460469231731687303715884105728 {
+						*b ^= 1_u128 << self.con[x]
+					} else {
+						// Do nothing, the bus is already off
+					}					
+				}
+			}
+			// We're updating our pins
+			else {
+				if self.get(x) {
+					// Our pin is on
+					if *b << 127 - self.con[x] >= 170141183460469231731687303715884105728 {
+						// Do nothing, the bus is on too
+					} else {
+						self.val ^= 1_u128 << x;
+					}
+				} else {
+					// Our pin is off
+					if *b << 127 - self.con[x] >= 170141183460469231731687303715884105728 {
+						self.val |= 1_u128 << x;
+					} else {
+						// Do nothing, the bus is off too
+					}					
+				}
+			}			
+		}
+		drop(b);
+		self.pre = self.val;
+	}
+}
+
+fn main () {
+	let mut bus = Arc::new(Mutex::new(5)); // ...101
+	let mut pins = Pins { // ...000
+		pre: 0,
+		val: 0,
+		bus: Arc::clone(&bus),
+		con: [0; 128],
+		len: 3
+	};
+	pins.con[0] = 0;
+	pins.con[1] = 1;
+	pins.con[2] = 2;
+	
+	println!("Pins: {}", pins.val);
+	
+	pins.refresh();
+	
+	println!("Pins: {}", pins.val); // ...101
+	
+	pins.set(1, true); // ...111
+	let mut b = bus.lock().unwrap();
+	*b = 0;
+	drop(b); // ...000
+	pins.refresh();
+	
+	let mut b = *bus.lock().unwrap();
+	
+	println!("Bus: {}", b); // ...010
+	
+		
 }
